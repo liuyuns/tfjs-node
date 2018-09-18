@@ -93,12 +93,22 @@ async function downloadLibtensorflow(callback) {
   await getTargetUri();
   // The deps folder and resources do not exist, download and callback as
   // needed:
-  console.error('* Downloading libtensorflow');
+  console.error('* Downloading libtensorflow', targetUri);
 
   // Ensure dependencies staged directory is available:
   await ensureDir(depsPath);
 
-  const request = https.get(targetUri, response => {
+  var url = require('url')
+  var option = url.parse(targetUri)
+
+  var proxy=process.env["HTTPS_PROXY"]
+  if (!!proxy){
+    var HttpsProxyAgent = require('https-proxy-agent')
+    var agent = new HttpsProxyAgent(proxy)
+    option.agent = agent
+  }
+
+  const request = https.get(option, response => {
     const bar = new ProgressBar('[:bar] :rate/bps :percent :etas', {
       complete: '=',
       incomplete: ' ',
